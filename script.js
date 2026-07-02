@@ -1,14 +1,22 @@
 const app = document.getElementById("app");
 const STORAGE_KEY = "aura_unlocked_activities";
 const COMPLETED_KEY = "aura_completed_activities";
+const CONTRACTS_KEY = "aura_signed_contracts";
 let screen = "loading";
+let currentAudio = null;
 
-render();
+window.addEventListener("load", renderComingSoonScreen);
+window.addEventListener("keydown", (e) => {
 
-setTimeout(() => {
-    screen = "welcome";
-    render();
-}, 2500);
+    if (e.ctrlKey && e.altKey && e.key.toLowerCase() === "a") {
+
+        document.getElementById("developerArea").style.display = "block";
+
+        document.getElementById("devPassword").focus();
+
+    }
+
+});
 
 function getUnlockedActivities() {
     try {
@@ -50,8 +58,30 @@ function saveCompletedActivity(activity) {
 
     localStorage.setItem(COMPLETED_KEY, JSON.stringify(completed));
 }
+function getSignedContracts() {
+    try {
+        return JSON.parse(localStorage.getItem(CONTRACTS_KEY) || "[]");
+    } catch {
+        return [];
+    }
+}
 
+function isContractSigned(activity) {
+    return getSignedContracts().includes(activity.id);
+}
+
+function saveSignedContract(activity) {
+    const signed = getSignedContracts();
+
+    if (!signed.includes(activity.id)) {
+        signed.push(activity.id);
+    }
+
+    localStorage.setItem(CONTRACTS_KEY, JSON.stringify(signed));
+}
 function render() {
+   
+
     if (screen === "loading") {
         app.innerHTML = `
             <main class="loading-screen">
@@ -120,11 +150,16 @@ function render() {
 
         return;
 }
-
 }
 
+
 function renderAgenda() {
+    if (currentAudio) {
+    currentAudio.pause();
+}
     screen = "agenda";
+    const completed = getCompletedActivities().length;
+const progress = (completed / activities.length) * 100;
 
     const visibleActivities = activities.filter((activity, index) => {
 
@@ -159,7 +194,10 @@ const cards = visibleActivities.map((activity) => {
             <p class="eyebrow">Tu experiencia</p>
             <h1>Agenda</h1>
             <div class="progress" aria-label="Progreso de la experiencia">
-                <div class="progress-value"></div>
+              <div
+    class="progress-value"
+    style="width:${progress}%">
+</div>
             </div>
             <div class="activity-list">${cards}</div>
         </main>`;
@@ -238,6 +276,7 @@ function verifyPassword(index) {
 }
 function openActivity(index) {
     const activity = activities[index];
+    activity.contractAccepted = isContractSigned(activity);
     const rules = activity.rules.map((rule) => `<li>${rule}</li>`).join("");
 
     app.innerHTML = `
@@ -344,18 +383,26 @@ if (activity.contract) {
 if (activity.music) {
 
     const musicButton = document.getElementById("playMusicButton");
-    const audio = new Audio(activity.music);
+
+if (currentAudio) {
+    currentAudio.pause();
+}
+
+currentAudio = new Audio(activity.music);
 
     musicButton.addEventListener("click", () => {
 
-        if (audio.paused) {
-            audio.play();
-            musicButton.textContent = "⏸️ Pausar música";
-        } else {
-            audio.pause();
-            musicButton.textContent = "🎵 Reproducir música";
-        }
+        if (currentAudio.paused) {
 
+    currentAudio.play();
+    musicButton.textContent = "⏸️ Pausar música";
+
+} else {
+
+    currentAudio.pause();
+    musicButton.textContent = "🎵 Reproducir música";
+
+}
     });
 
 }
@@ -376,11 +423,23 @@ if (activity.image) {
 
             saveCompletedActivity(activity);
 
-            renderCompletedScreen();
+            if (index === activities.length - 1) {
+
+    renderFinalScreen();
+
+} else {
+
+    renderCompletedScreen();
+
+}
 
         });
 }
 function renderCompletedScreen() {
+
+    if (currentAudio) {
+        currentAudio.pause();
+    }
 
     app.innerHTML = `
         <main class="welcome-screen screen-enter">
@@ -408,6 +467,10 @@ function renderCompletedScreen() {
 
 }
 function renderContractScreen(activity) {
+
+    if (currentAudio) {
+        currentAudio.pause();
+    }
 
     app.innerHTML = `
         <main class="activity screen-enter">
@@ -446,6 +509,7 @@ document
         .addEventListener("click", () => {
 
             activity.contractAccepted = true;
+            saveSignedContract(activity);
 
             openActivity(activities.indexOf(activity));
 
@@ -453,6 +517,10 @@ document
 
 }
 function renderImageScreen(activity) {
+
+    if (currentAudio) {
+        currentAudio.pause();
+    }
 
     app.innerHTML = `
         <main class="activity screen-enter">
@@ -478,6 +546,187 @@ function renderImageScreen(activity) {
         .addEventListener("click", () => {
 
             openActivity(activities.indexOf(activity));
+
+        });
+
+}
+function renderFinalScreen() {
+
+    app.innerHTML = `
+        <main class="welcome-screen screen-enter">
+
+            <div class="logo">AURA</div>
+
+            <h1>❤️ Gracias</h1>
+
+            <p>
+
+                Has llegado al final de esta experiencia.
+
+                <br><br>
+
+                Espero que hayas disfrutado cada momento.
+
+            </p>
+
+            <button
+                class="primary-button"
+                id="restartButton">
+
+                Volver al inicio
+
+            </button>
+
+        </main>
+    `;
+
+    document
+        .getElementById("restartButton")
+        .addEventListener("click", () => {
+
+            localStorage.clear();
+
+            location.reload();
+
+        });
+
+}
+if ("serviceWorker" in navigator) {
+
+    window.addEventListener("load", () => {
+
+        navigator.serviceWorker
+            .register("./sw.js")
+            .then(() => {
+
+                console.log("Service Worker registrado correctamente.");
+
+            })
+            .catch((error) => {
+
+                console.error("Error registrando Service Worker:", error);
+
+            });
+
+    });
+
+}
+function renderComingSoonScreen() {
+
+    app.innerHTML = `
+        <main class="welcome-screen screen-enter">
+
+            <div
+                class="logo"
+                id="secretLogo">
+
+                AURA
+
+            </div>
+
+            <h1>✨ Próximamente ✨</h1>
+
+            <p style="max-width:340px;line-height:1.8;margin-top:25px;">
+
+                Estoy preparando una experiencia muy especial para ti.
+
+                <br><br>
+
+                Muy pronto podrás descubrirla.
+                <button
+    id="developerButton"
+    style="
+        margin-top:40px;
+        background:none;
+        border:none;
+        color:#666;
+        font-size:12px;
+        cursor:pointer;
+    ">
+
+    Zona desarrolladora
+
+</button>
+
+            </p>
+
+            <div
+                id="developerArea"
+                style="display:none;margin-top:40px;">
+
+                <input
+                    id="devPassword"
+                    type="password"
+                    placeholder="Contraseña">
+
+                <button
+                    class="primary-button"
+                    id="unlockDev">
+
+                    Entrar
+
+                </button>
+
+            </div>
+
+        </main>
+    `;
+
+    let timer;
+
+    const logo = document.getElementById("secretLogo");
+
+    logo.addEventListener("mousedown", () => {
+
+        timer = setTimeout(() => {
+
+            document.getElementById("developerArea").style.display = "block";
+
+        }, 3000);
+
+    });
+
+    logo.addEventListener("mouseup", () => {
+
+        clearTimeout(timer);
+
+    });
+
+    logo.addEventListener("mouseleave", () => {
+
+        clearTimeout(timer);
+
+    });
+document
+    .getElementById("developerButton")
+    .addEventListener("click", () => {
+
+        document
+            .getElementById("developerArea")
+            .style.display = "block";
+
+    });
+    document
+        .getElementById("unlockDev")
+        .addEventListener("click", () => {
+
+            if (
+                document.getElementById("devPassword").value === "Ripollet74"
+            ) {
+
+                screen = "loading";
+
+                render();
+
+                setTimeout(() => {
+
+                    screen = "welcome";
+
+                    render();
+
+                }, 2500);
+
+            }
 
         });
 
