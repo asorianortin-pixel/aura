@@ -11,75 +11,152 @@ export async function renderProfile(app) {
     const user = snap.data() || {};
 
     app.innerHTML = `
-        <div class="page profile-page">
-            <div class="top-bar">
-                <button id="back-more">←</button>
-                <h2>Mi Perfil</h2>
-                <button id="settings-btn">⚙️</button>
+        <div class="page profile-page profile-screen screen-enter">
+            <div class="profile-ambient" aria-hidden="true">
+                <div class="profile-glow-orb"></div>
+                <div class="profile-curve-line"></div>
             </div>
 
-            <div class="profile-header">
-                <div class="profile-picture-container">
-                    <img id="profile-photo" 
-                         src="${user.photoURL || '../assets/images/foto1.jpg'}" 
-                         alt="Foto de perfil">
-                    <button id="edit-photo-btn" class="edit-photo-btn">✏️</button>
+            <nav class="profile-nav">
+                <button id="back-more" class="profile-nav-btn" aria-label="Volver">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+                </button>
+                <button id="settings-btn" class="profile-nav-btn" aria-label="Ajustes">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+                </button>
+            </nav>
+
+            <header class="profile-hero">
+                <div class="profile-avatar-stage">
+                    <div class="profile-avatar-glow"></div>
+                    <div class="profile-avatar-ring"></div>
+                    <div class="profile-picture-container">
+                        <img id="profile-photo"
+                             src="${user.photoURL || '../assets/images/foto1.jpg'}"
+                             alt="Foto de perfil">
+                        <button id="edit-photo-btn" class="edit-photo-btn" aria-label="Editar foto">
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 013 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>
+                        </button>
+                    </div>
                 </div>
-                
-                <h1 class="profile-name">${user.name || "Tu Nombre"}</h1>
-                <p class="profile-username">@${user.username || "username"}</p>
-                <p class="member-since">Miembro desde ${user.memberSince || "2025"}</p>
+
+                <div class="profile-identity">
+                    <h1 class="profile-name">
+                        <span class="profile-sparkle" aria-hidden="true">
+                            <svg viewBox="0 0 24 24"><path d="M12 2l1.4 4.3L18 8l-4.6 1.7L12 14l-1.4-4.3L6 8l4.6-1.7z"/></svg>
+                        </span>
+                        ${user.name || "Tu Nombre"}
+                        <span class="profile-sparkle" aria-hidden="true">
+                            <svg viewBox="0 0 24 24"><path d="M12 2l1.4 4.3L18 8l-4.6 1.7L12 14l-1.4-4.3L6 8l4.6-1.7z"/></svg>
+                        </span>
+                    </h1>
+                    <p class="profile-username">@${user.username || "username"}</p>
+                    <p class="member-since">Miembro desde ${user.memberSince || "2025"}</p>
+                </div>
 
                 <div class="profile-bio">
-                    "${user.bio || "Aquí construimos nuestro mejor nosotros, juntos. ❤️"}"
+                    <p>"${user.bio || "Aquí construimos nuestro mejor nosotros, juntos. ❤️"}"</p>
                 </div>
-            </div>
+            </header>
 
-            <div class="profile-stats">
+            <section class="profile-stats" aria-label="Estadísticas">
                 <div class="stat-item">
+                    <div class="stat-icon">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>
+                    </div>
                     <span class="stat-number">12</span>
-                    <span class="stat-label">Retos<br>completados</span>
+                    <span class="stat-label">Retos completados</span>
                 </div>
+                <div class="stat-divider" aria-hidden="true"></div>
                 <div class="stat-item">
+                    <div class="stat-icon">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22c1.5-2.5 4-5.5 4-9a4 4 0 00-8 0c0 3.5 2.5 6.5 4 9z"/><path d="M12 13c.8-1.2 1.5-2.4 1.5-3.5a1.5 1.5 0 00-3 0c0 1.1.7 2.3 1.5 3.5z"/></svg>
+                    </div>
                     <span class="stat-number">7</span>
-                    <span class="stat-label">Días<br>seguidos</span>
+                    <span class="stat-label">Días seguidos</span>
                 </div>
+                <div class="stat-divider" aria-hidden="true"></div>
                 <div class="stat-item">
+                    <div class="stat-icon">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg>
+                    </div>
                     <span class="stat-number">850</span>
-                    <span class="stat-label">Puntos<br>totales</span>
+                    <span class="stat-label">Puntos totales</span>
                 </div>
-            </div>
+            </section>
 
-            <div class="profile-sections">
+            <section class="profile-sections">
                 <button class="section-card" id="personal-btn">
-                    👤 1. Información personal
-                    <span class="section-desc">Tus datos, tu historia.</span>
+                    <span class="section-icon">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+                    </span>
+                    <span class="section-content">
+                        <span class="section-title">1. Información personal</span>
+                        <span class="section-desc">Tus datos, tu historia.</span>
+                    </span>
+                    <span class="section-chevron" aria-hidden="true">
+                        <svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
+                    </span>
                 </button>
                 <button class="section-card" id="relationship-btn">
-                    ❤️ 2. Relación
-                    <span class="section-desc">Nuestro vínculo, nuestro espacio.</span>
+                    <span class="section-icon">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7-4.5-9.5-9A5.5 5.5 0 0112 6a5.5 5.5 0 019.5 6c-2.5 4.5-9.5 9-9.5 9z"/></svg>
+                    </span>
+                    <span class="section-content">
+                        <span class="section-title">2. Relación</span>
+                        <span class="section-desc">Nuestro vínculo, nuestro espacio.</span>
+                    </span>
+                    <span class="section-chevron" aria-hidden="true">
+                        <svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
+                    </span>
                 </button>
                 <button class="section-card" id="favorites-btn">
-                    ⭐ 3. Gustos
-                    <span class="section-desc">Lo que nos gusta y nos representa.</span>
+                    <span class="section-icon">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg>
+                    </span>
+                    <span class="section-content">
+                        <span class="section-title">3. Gustos</span>
+                        <span class="section-desc">Lo que nos gusta y nos representa.</span>
+                    </span>
+                    <span class="section-chevron" aria-hidden="true">
+                        <svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
+                    </span>
                 </button>
                 <button class="section-card" id="gifts-btn">
-                    🎁 4. Regalos
-                    <span class="section-desc">Ideas y detalles para sorprendernos.</span>
+                    <span class="section-icon">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13M7.5 8a3.5 3.5 0 017 0M12 8a3.5 3.5 0 017 0M12 8a3.5 3.5 0 00-7 0"/><rect x="5" y="12" width="14" height="9" rx="2"/></svg>
+                    </span>
+                    <span class="section-content">
+                        <span class="section-title">4. Regalos</span>
+                        <span class="section-desc">Ideas y detalles para sorprendernos.</span>
+                    </span>
+                    <span class="section-chevron" aria-hidden="true">
+                        <svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
+                    </span>
                 </button>
                 <button class="section-card" id="other-btn">
-                    ⚙️ 5. Otros
-                    <span class="section-desc">Recuerdos, metas y más.</span>
+                    <span class="section-icon">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+                    </span>
+                    <span class="section-content">
+                        <span class="section-title">5. Otros</span>
+                        <span class="section-desc">Recuerdos, metas y más.</span>
+                    </span>
+                    <span class="section-chevron" aria-hidden="true">
+                        <svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
+                    </span>
                 </button>
-            </div>
+            </section>
         </div>
     `;
 
     // Eventos
-    document.getElementById("back-more").addEventListener("click", window.renderMoreMenu);
+    document.getElementById("back-more").addEventListener("click", () => {
+    window.renderMoreMenu();
+});
     document.getElementById("edit-photo-btn").addEventListener("click", editProfilePhoto);
 
-    document.getElementById("personal-btn").addEventListener("click", renderPersonalInfo);
+    document.getElementById("personal-btn").addEventListener("click", () => renderPersonalInfo(app));
     document.getElementById("relationship-btn").addEventListener("click", renderRelationship);
     document.getElementById("favorites-btn").addEventListener("click", renderFavorites);
     document.getElementById("gifts-btn").addEventListener("click", renderGifts);
@@ -153,7 +230,7 @@ function chooseFromGallery() {
 }
 
 // ==================== SECCIONES ====================
-async function renderPersonalInfo() {
+async function renderPersonalInfo(app) {
 
 
 
@@ -167,174 +244,132 @@ async function renderPersonalInfo() {
 
     const user = snap.data();
 
-
-
-
     app.innerHTML = `
-
-
-
-
-        <div class="page">
-
-
-
-
-            <div class="top-bar">
-
-
-
-
-                <button id="back-profile">←</button>
-
-
-
-
-                <h2>Información personal</h2>
-
-
-
-
+        <div class="page personal-info-screen screen-enter">
+            <div class="profile-ambient personal-ambient" aria-hidden="true">
+                <div class="profile-glow-orb personal-glow-orb"></div>
+                <div class="profile-curve-line"></div>
             </div>
 
-
-
-
-            <div class="profile-form">
-
-
-
-
-                <label>Nombre</label>
-
-
-
-
-                <input
-                    id="profile-name"
-                    value="${user.name || ""}"
-                >
-
-
-
-
-                <label>Username</label>
-
-
-
-
-                <input
-                    id="profile-username"
-                    value="${user.username || ""}"
-                >
-
-
-
-
-                <label>Fecha de nacimiento</label>
-
-
-
-
-                <input
-                    id="profile-birthday"
-                    type="date"
-                    value="${user.birthday || ""}"
-                >
-
-
-
-
-                <label>Género</label>
-
-
-
-
-                <select id="profile-gender">
-
-
-
-
-                    <option value="">Selecciona...</option>
-
-
-
-
-                    <option value="Mujer">Mujer</option>
-
-
-
-
-                    <option value="Hombre">Hombre</option>
-
-
-
-
-                    <option value="No binario">No binario</option>
-
-
-
-
-                    <option value="Prefiero no decirlo">
-                        Prefiero no decirlo
-                    </option>
-
-
-
-
-                </select>
-
-
-
-
-                <label>Biografía</label>
-
-
-
-
-                <textarea
-                    id="profile-bio"
-                >${user.bio || ""}</textarea>
-
-
-
-
-                <button id="save-profile">
-
-
-
-
-                    Guardar cambios
-
-
-
-
+            <nav class="profile-nav personal-nav">
+                <button id="back-profile" class="profile-nav-btn" aria-label="Volver">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
                 </button>
+                <button id="confirm-profile" class="profile-nav-btn profile-nav-btn--accent" aria-label="Confirmar cambios">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>
+                </button>
+            </nav>
 
+            <header class="personal-header">
+                <h1 class="personal-title">
+                    Información personal
+                    <span class="personal-sparkle" aria-hidden="true">
+                        <svg viewBox="0 0 24 24"><path d="M12 2l1.4 4.3L18 8l-4.6 1.7L12 14l-1.4-4.3L6 8l4.6-1.7z"/></svg>
+                    </span>
+                </h1>
+                <p class="personal-subtitle">Tus datos, tu historia.</p>
+            </header>
 
+            <div class="profile-form personal-form">
+                <section class="personal-block">
+                    <h2 class="personal-block-title">
+                        <span class="personal-block-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+                        </span>
+                        Información básica
+                    </h2>
 
+                    <div class="field-card">
+                        <span class="field-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+                        </span>
+                        <div class="field-body">
+                            <label for="profile-name">Nombre</label>
+                            <input id="profile-name" type="text" value="${user?.name || ""}" placeholder="Tu nombre" autocomplete="name">
+                        </div>
+                    </div>
 
+                    <div class="field-card">
+                        <span class="field-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+                        </span>
+                        <div class="field-body">
+                            <label for="profile-username">Username</label>
+                            <input id="profile-username" type="text" value="${user?.username || ""}" placeholder="@username" autocapitalize="none" autocomplete="username">
+                        </div>
+                    </div>
+
+                    <div class="field-card">
+                        <span class="field-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="3"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+                        </span>
+                        <div class="field-body">
+                            <label for="profile-birthday">Fecha de nacimiento</label>
+                            <input id="profile-birthday" type="date" value="${user?.birthday || ""}">
+                        </div>
+                    </div>
+
+                    <div class="field-card field-card--select">
+                        <span class="field-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>
+                        </span>
+                        <div class="field-body">
+                            <label for="profile-gender">Género</label>
+                            <select id="profile-gender">
+                                <option value="">Selecciona...</option>
+                                <option value="Mujer"${user?.gender === "Mujer" ? " selected" : ""}>Mujer</option>
+                                <option value="Hombre"${user?.gender === "Hombre" ? " selected" : ""}>Hombre</option>
+                                <option value="No binario"${user?.gender === "No binario" ? " selected" : ""}>No binario</option>
+                                <option value="Prefiero no decirlo"${user?.gender === "Prefiero no decirlo" ? " selected" : ""}>Prefiero no decirlo</option>
+                            </select>
+                        </div>
+                        <span class="field-chevron" aria-hidden="true">
+                            <svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
+                        </span>
+                    </div>
+                </section>
+
+                <section class="personal-block">
+                    <h2 class="personal-block-title">
+                        <span class="personal-block-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 013 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>
+                        </span>
+                        Sobre ti
+                    </h2>
+
+                    <div class="field-card field-card--bio">
+                        <div class="field-body field-body--full">
+                            <label for="profile-bio">Biografía</label>
+                            <textarea id="profile-bio" rows="5" placeholder="Cuéntanos más sobre ti...">${user?.bio || ""}</textarea>
+                        </div>
+                    </div>
+                </section>
+
+                <button id="save-profile" class="personal-save-btn" type="button">
+                    <span class="personal-save-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>
+                    </span>
+                    <span class="personal-save-copy">
+                        <span class="personal-save-title">Guardar cambios</span>
+                        <span class="personal-save-desc">Actualiza tu información personal</span>
+                    </span>
+                    <span class="personal-save-chevron" aria-hidden="true">
+                        <svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
+                    </span>
+                </button>
             </div>
-
-
-
-
         </div>
-
-
-
-
     `;
 
-
-
+    document
+    .getElementById("back-profile")
+    .addEventListener("click", () => renderProfile(app));
 
     document
-        .getElementById("back-profile")
-        .addEventListener("click", renderProfile);
-
-
-
+        .getElementById("confirm-profile")
+        .addEventListener("click", () => {
+            document.getElementById("save-profile").click();
+        });
 
     document
         .getElementById("save-profile")
@@ -398,7 +433,7 @@ async function renderPersonalInfo() {
 
 
 
-            renderProfile();
+            renderProfile(app);
 
 
 

@@ -1,11 +1,39 @@
 export function renderUniverse(app) {
 
     app.innerHTML = `
-        <main class="universe-screen app-screen screen-enter">
+        <main class="universe-screen app-screen universe-redesign screen-enter">
+            <div class="universe-nebula universe-nebula-top" aria-hidden="true"></div>
+            <div class="universe-nebula universe-nebula-bottom" aria-hidden="true"></div>
 
             <button class="back-button" id="backUniverse">
                 ← Volver
             </button>
+
+            <header class="universe-hero">
+                <p class="universe-brand">AURA</p>
+                <div class="universe-title-row">
+                    <div class="universe-orbit-icon" aria-hidden="true">${planetSvg()}</div>
+                    <h1>Nuestro<br><span>Universo</span></h1>
+                </div>
+            </header>
+
+            <section class="universe-time-card">
+                <h2><span aria-hidden="true">${heartFillSvg()}</span> Tiempo juntos</h2>
+                <p id="love-time" class="universe-love-time">--</p>
+                <p id="love-since" class="universe-love-since">Desde...</p>
+            </section>
+
+            <section class="universe-menu" aria-label="Secciones de Nuestro Universo">
+                ${universeMenuCard("history-card", bookSvg(), "Nuestra historia")}
+                ${universeMenuCard("", heartSvg(), "Recuerdos")}
+                ${universeMenuCard("importantDatesCard", calendarSvg(), "Fechas importantes")}
+                ${universeMenuCard("placesCard", pinSvg(), "Lugares")}
+                ${universeMenuCard("", trophySvg(), "Logros")}
+                ${universeMenuCard("", capsuleSvg(), "Capsula del tiempo")}
+                ${universeMenuCard("", constellationSvg(), "Constelacion")}
+            </section>
+
+            ${renderUniverseBottomNav()}
 
             <div class="app-header">
                 <p class="eyebrow">AURA</p>
@@ -71,6 +99,7 @@ export function renderUniverse(app) {
 
         </main>
     `;
+document.getElementById("backUniverse").innerHTML = `<span aria-hidden="true">&#8592;</span> Volver`;
 document
     .getElementById("history-card")
     .addEventListener("click", () => renderHistory(app));
@@ -141,6 +170,100 @@ function updateLoveCounter(date) {
         "Desde el " + start.toLocaleDateString("es-ES");
 
 }
+
+function universeMenuCard(id, icon, label) {
+    return `
+        <button class="universe-card-redesign" ${id ? `id="${id}"` : ""} type="button">
+            <span class="universe-card-icon" aria-hidden="true">${icon}</span>
+            <span class="universe-card-label">${label}</span>
+            <span class="universe-card-chevron" aria-hidden="true">&#8250;</span>
+        </button>
+    `;
+}
+
+function renderUniverseBottomNav() {
+    return `
+        <nav class="universe-bottom-nav" aria-label="Navegacion principal">
+            <button type="button" onclick="renderAgenda()">
+                ${homeSvg()}
+                <span>Inicio</span>
+            </button>
+            <button type="button" onclick="renderChallenges()">
+                ${flameSvg()}
+                <span>Desafios</span>
+            </button>
+            <button type="button" onclick="renderGallery()">
+                ${imageSvg()}
+                <span>Galeria</span>
+            </button>
+            <button class="active" type="button" onclick="renderMoreMenu()">
+                ${menuSvg()}
+                <span>Mas</span>
+            </button>
+        </nav>
+    `;
+}
+
+function planetSvg() {
+    return `
+        <svg viewBox="0 0 64 64" aria-hidden="true">
+            <circle cx="32" cy="32" r="15"></circle>
+            <path d="M8 38c9 8 29 5 44-7 5-4 7-8 5-10-3-4-17 0-32 10S5 45 8 38Z"></path>
+            <path d="M17 43c8 3 21 0 34-8"></path>
+        </svg>`;
+}
+
+function heartFillSvg() {
+    return `
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12 21s-7.5-4.4-9.5-9.2C.9 8 3.1 4.8 6.7 4.8c2 0 3.5 1 4.3 2.3.8-1.3 2.3-2.3 4.3-2.3 3.6 0 5.8 3.2 4.2 7C19.5 16.6 12 21 12 21Z"></path>
+        </svg>`;
+}
+
+function bookSvg() {
+    return `<svg viewBox="0 0 24 24"><path d="M4 5.5A3.5 3.5 0 0 1 7.5 2H20v18H7.5A3.5 3.5 0 0 0 4 23V5.5Z"></path><path d="M4 5.5A3.5 3.5 0 0 0 .5 2H0v18h.5A3.5 3.5 0 0 1 4 23"></path></svg>`;
+}
+
+function heartSvg() {
+    return `<svg viewBox="0 0 24 24"><path d="M12 21s-8-4.8-10-10C.5 7 2.8 4 6.5 4 8.7 4 10.4 5.2 12 7.2 13.6 5.2 15.3 4 17.5 4 21.2 4 23.5 7 22 11c-2 5.2-10 10-10 10Z"></path></svg>`;
+}
+
+function calendarSvg() {
+    return `<svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"></rect><path d="M7 3v4M17 3v4M3 10h18M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01M16 18h.01"></path></svg>`;
+}
+
+function pinSvg() {
+    return `<svg viewBox="0 0 24 24"><path d="M12 22s7-6.1 7-13A7 7 0 0 0 5 9c0 6.9 7 13 7 13Z"></path><circle cx="12" cy="9" r="2.5"></circle></svg>`;
+}
+
+function trophySvg() {
+    return `<svg viewBox="0 0 24 24"><path d="M8 4h8v5a4 4 0 0 1-8 0V4Z"></path><path d="M8 6H4v2a4 4 0 0 0 4 4M16 6h4v2a4 4 0 0 1-4 4M12 13v5M8 21h8M9 18h6"></path></svg>`;
+}
+
+function capsuleSvg() {
+    return `<svg viewBox="0 0 24 24"><path d="M10.4 21.2a5 5 0 0 1-7.1-7.1l10.8-10.8a5 5 0 0 1 7.1 7.1L10.4 21.2Z"></path><path d="M8.7 8.7l6.6 6.6"></path></svg>`;
+}
+
+function constellationSvg() {
+    return `<svg viewBox="0 0 24 24"><path d="M5 17l6-10 8 12M5 17l14 2M11 7l8 12"></path><circle cx="5" cy="17" r="1.5"></circle><circle cx="11" cy="7" r="1.5"></circle><circle cx="19" cy="19" r="1.5"></circle></svg>`;
+}
+
+function homeSvg() {
+    return `<svg viewBox="0 0 24 24"><path d="M3 11.5 12 4l9 7.5"></path><path d="M5.5 10.5V21h13V10.5"></path><path d="M9.5 21v-6h5v6"></path></svg>`;
+}
+
+function flameSvg() {
+    return `<svg viewBox="0 0 24 24"><path d="M12 22c4 0 7-2.8 7-6.8 0-3.6-2.1-6-5.8-10.2-.3 2.6-1.2 4.3-2.7 5.4.1-2-1-3.8-2.5-5.4C6.8 8.9 5 11.5 5 15.2 5 19.2 8 22 12 22Z"></path></svg>`;
+}
+
+function imageSvg() {
+    return `<svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"></rect><circle cx="8" cy="9" r="1.5"></circle><path d="M21 16l-5.5-5.5L5 20"></path></svg>`;
+}
+
+function menuSvg() {
+    return `<svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"></path></svg>`;
+}
+
 function renderUniverseSetup(app){
 
     app.innerHTML = `
@@ -749,13 +872,70 @@ L.tileLayer(
     }
 ).addTo(map);
 
+
+places.forEach(place => {
+
+    if(!place.lat || !place.lng){
+        return;
+    }
+
+    const marker = L.marker(
+        [place.lat, place.lng]
+    ).addTo(map);
+
+    marker.on("click", () => {
+
+        console.log(place);
+
+    });
+
+});
+
 document
 .getElementById("backPlaces")
 .addEventListener("click",()=>renderUniverse(app));
 
+let addingPlace = false;
+
 document
 .getElementById("addPlace")
-.addEventListener("click",()=>renderAddPlace(app));
+.addEventListener("click",()=>{
+
+    addingPlace = true;
+
+    document.getElementById("addPlace").textContent = "📍";
+
+    alert("Toca cualquier punto del mapa para añadir un lugar.");
+
+});
+
+let tempMarker = null;
+map.on("click",(e)=>{
+
+    if(!addingPlace){
+        return;
+    }
+
+    addingPlace = false;
+
+    document.getElementById("addPlace").textContent = "+";
+
+    if(tempMarker){
+        map.removeLayer(tempMarker);
+    }
+
+    tempMarker = L.marker([
+        e.latlng.lat,
+        e.latlng.lng
+    ]).addTo(map);
+
+    renderAddPlace(
+    app,
+    e.latlng.lat,
+    e.latlng.lng
+);
+
+});
 
 }
 
@@ -1023,7 +1203,10 @@ function updatePlace(app, id){
 
 }
 
-function renderAddPlace(app){
+function renderAddPlace(app, lat, lng){
+
+    window.selectedPlaceLat = lat;
+    window.selectedPlaceLng = lng;
 
     app.innerHTML = `
 
@@ -1112,15 +1295,19 @@ function savePlace(app){
 
     places.push({
 
-        id: Date.now(),
+    id: Date.now(),
 
-        name,
+    name,
 
-        city,
+    city,
 
-        status
+    status,
 
-    });
+    lat: window.selectedPlaceLat,
+
+    lng: window.selectedPlaceLng
+
+});
 
     localStorage.setItem(
         "aura_places",
