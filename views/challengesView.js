@@ -139,7 +139,7 @@ function renderChallenges() {
 
     app.innerHTML = `
         <main class="challenges-screen app-screen screen-enter">
-            ${renderAppHeader("Retos", "Acepta o descarta")}
+            ${window.renderAppHeader("Retos", "Acepta o descarta")}
 
             <button id="toggleFilters" class="filter-toggle" type="button">
                 ${targetSvg()} Filtrar retos
@@ -172,7 +172,7 @@ function renderChallenges() {
                 <button id="acceptChallenge" class="decision-button accept" type="button" aria-label="Aceptar reto">✓</button>
             </div>
 
-            ${renderBottomNav("challenges")}
+            ${window.renderBottomNav("challenges")}
         </main>
     `;
 
@@ -196,5 +196,5 @@ function renderChallenges() {
         });
     });
 
-    attachBottomNavEvents();
+   window.attachBottomNavEvents();
 }

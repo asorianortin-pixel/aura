@@ -6,14 +6,33 @@ const activities = [
         activityTitle: "Llegada",
         time: "17:30 – 18:00",
         password: "1234",
-        explanation: "",
-        rules: [],
+        explanation: `Ya estamos aquí, mi amor 😈
+
+Te doy 30 minutos para que te instales tranquilo: deshagas la maleta, te duches si quieres, te pongas cómodo y respires hondo 😌
+
+
+Mientras tanto yo me voy a preparar… me voy a poner bien guarra y cachonda solo para ti 🔥
+
+
+Cuando termines, te quiero sentado y relajado… porque a partir de ahí empieza de verdad el vicio 😏
+
+
+Este ratito es solo para que cargues pilas… que después pienso comerte entero toda la noche 🍆💦
+`,
+        rules: [
+            "30 minutos de relax obligatorios ⏰",
+            "No me mires todavía 👀",
+            "No me toques todavía 🙅‍♀️",
+            "Sin prisas todavía, que esto es solo el calentamiento 😏"
+        ] ,
         contract: "Acepto vivir esta parte de la experiencia con presencia, calma y ganas de dejarme sorprender.",
-        music: "assets/music/prueba.mp3.mp3",
-        image: "assets/images/foto1.jpg",
+        music: "",
+        image: "",
         status: "locked",
         progress: 5,
         transitionMessage: "",
+        requiresPhoto: true,           // ← Nuevo
+    photoProof: null               // ← Para guardar la foto
     },
     {
         id: 2,
@@ -22,7 +41,12 @@ const activities = [
         activityTitle: "Carta + Baile",
         time: "18:00 – 18:30",
         password: "1234",
-        explanation: "",
+        explanation: `Es el momento de que leas la carta que te he escrito 😈
+
+
+En ella te explico todo lo que siento y lo guarra que pienso portarme este finde. Léela despacito y con atención.
+
+Quiero que cuando termines de leer estés con la polla dura y con muchas ganas de empezar a usar a tu zorra`,
         rules: [],
         contract: "Acepto abrir esta actividad sin prisa, siguiendo el orden de AURA y dejando que el momento haga su parte.",
         music: "",
@@ -30,6 +54,8 @@ const activities = [
         status: "locked",
         progress: 10,
         transitionMessage: "",
+        requiresPhoto: true,           // ← Nuevo
+    photoProof: null               // ← Para guardar la foto
     },
     {
         id: 3,
@@ -46,6 +72,8 @@ const activities = [
         status: "locked",
         progress: 15,
         transitionMessage: "",
+        requiresPhoto: true,           // ← Nuevo
+    photoProof: null               // ← Para guardar la foto
     },
     {
         id: 4,
@@ -62,6 +90,8 @@ const activities = [
         status: "locked",
         progress: 20,
         transitionMessage: "",
+        requiresPhoto: true,           // ← Nuevo
+    photoProof: null               // ← Para guardar la foto
     },
     {
         id: 5,
@@ -78,6 +108,8 @@ const activities = [
         status: "locked",
         progress: 25,
         transitionMessage: "",
+        requiresPhoto: true,           // ← Nuevo
+    photoProof: null               // ← Para guardar la foto
     },
     {
         id: 6,
@@ -94,6 +126,8 @@ const activities = [
         status: "locked",
         progress: 30,
         transitionMessage: "",
+        requiresPhoto: true,           // ← Nuevo
+    photoProof: null               // ← Para guardar la foto
     },
     {
         id: 7,
@@ -110,6 +144,8 @@ const activities = [
         status: "locked",
         progress: 35,
         transitionMessage: "",
+        requiresPhoto: true,           // ← Nuevo
+    photoProof: null               // ← Para guardar la foto
     },
     {
         id: 8,
@@ -126,6 +162,8 @@ const activities = [
         status: "locked",
         progress: 40,
         transitionMessage: "",
+        requiresPhoto: true,           // ← Nuevo
+    photoProof: null               // ← Para guardar la foto
     },
     {
         id: 9,
@@ -142,6 +180,8 @@ const activities = [
         status: "locked",
         progress: 45,
         transitionMessage: "",
+        requiresPhoto: true,           // ← Nuevo
+    photoProof: null               // ← Para guardar la foto
     },
     {
         id: 10,
@@ -158,6 +198,8 @@ const activities = [
         status: "locked",
         progress: 50,
         transitionMessage: "",
+        requiresPhoto: true,           // ← Nuevo
+    photoProof: null               // ← Para guardar la foto
     },
     {
         id: 11,
@@ -174,6 +216,8 @@ const activities = [
         status: "locked",
         progress: 55,
         transitionMessage: "",
+        requiresPhoto: true,           // ← Nuevo
+    photoProof: null               // ← Para guardar la foto
     },
     {
         id: 12,
@@ -190,6 +234,8 @@ const activities = [
         status: "locked",
         progress: 60,
         transitionMessage: "",
+        requiresPhoto: true,           // ← Nuevo
+    photoProof: null               // ← Para guardar la foto
     },
     {
         id: 13,
@@ -206,6 +252,8 @@ const activities = [
         status: "locked",
         progress: 65,
         transitionMessage: "",
+        requiresPhoto: true,           // ← Nuevo
+    photoProof: null               // ← Para guardar la foto
     },
     {
         id: 14,
@@ -222,6 +270,8 @@ const activities = [
         status: "locked",
         progress: 70,
         transitionMessage: "",
+        requiresPhoto: true,           // ← Nuevo
+    photoProof: null               // ← Para guardar la foto
     },
     {
         id: 15,
@@ -238,6 +288,8 @@ const activities = [
         status: "locked",
         progress: 75,
         transitionMessage: "",
+        requiresPhoto: true,           // ← Nuevo
+    photoProof: null               // ← Para guardar la foto
     },
     {
         id: 16,
@@ -254,6 +306,8 @@ const activities = [
         status: "locked",
         progress: 80,
         transitionMessage: "",
+        requiresPhoto: true,           // ← Nuevo
+    photoProof: null               // ← Para guardar la foto
     },
     {
         id: 17,
@@ -270,6 +324,8 @@ const activities = [
         status: "locked",
         progress: 85,
         transitionMessage: "",
+        requiresPhoto: true,           // ← Nuevo
+    photoProof: null               // ← Para guardar la foto
     },
     {
         id: 18,
@@ -286,6 +342,8 @@ const activities = [
         status: "locked",
         progress: 90,
         transitionMessage: "",
+        requiresPhoto: true,           // ← Nuevo
+    photoProof: null               // ← Para guardar la foto
     },
     {
         id: 19,
@@ -302,5 +360,7 @@ const activities = [
         status: "locked",
         progress: 100,
         transitionMessage: "",
+        requiresPhoto: true,           // ← Nuevo
+    photoProof: null               // ← Para guardar la foto
     }
 ];

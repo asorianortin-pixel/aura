@@ -1070,3 +1070,301 @@ input:focus {
         transition-duration: .01ms !important;
     }
 }
+#auth-screen{
+    position:fixed;
+    inset:0;
+    background:#050505;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    z-index:99999;
+
+    transition: opacity .3s ease;
+    
+}
+
+.auth-card{
+    width:min(90%,380px);
+    display:flex;
+    flex-direction:column;
+    gap:16px;
+    padding:30px;
+    border-radius:24px;
+    background:rgba(255,255,255,.04);
+    backdrop-filter:blur(20px);
+}
+
+.auth-card h1{
+    color:white;
+    text-align:center;
+    margin:0;
+    letter-spacing:6px;
+}
+
+.auth-card p{
+    color:#b9b9b9;
+    text-align:center;
+    margin-bottom:20px;
+}
+
+.auth-card input{
+    padding:16px;
+    border:none;
+    border-radius:14px;
+    background:#1d1d1d;
+    color:white;
+    font-size:15px;
+}
+
+.auth-card button{
+    padding:16px;
+    border:none;
+    border-radius:14px;
+    cursor:pointer;
+    font-weight:bold;
+}
+
+#login-btn{
+    background:white;
+    color:black;
+}
+
+.secondary-btn{
+    background:transparent;
+    color:white;
+    border:1px solid rgba(255,255,255,.15);
+}
+
+.profile-page {
+    background: #0a0a0a;
+    color: #fff;
+}
+
+.profile-header {
+    text-align: center;
+    padding: 20px 0;
+}
+
+.profile-picture-container {
+    position: relative;
+    width: 160px;
+    height: 160px;
+    margin: 0 auto 15px;
+}
+
+#profile-photo {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    border: 4px solid #ff3366;
+    box-shadow: 0 0 20px rgba(255, 51, 102, 0.6);
+    object-fit: cover;
+}
+
+.edit-photo-btn {
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
+    background: #ff3366;
+    color: white;
+    border: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    font-size: 18px;
+    cursor: pointer;
+}
+
+.profile-stats {
+    display: flex;
+    justify-content: space-around;
+    background: rgba(255, 51, 102, 0.1);
+    margin: 15px;
+    padding: 15px;
+    border-radius: 16px;
+    border: 1px solid #ff3366;
+}
+
+.stat-item {
+    text-align: center;
+}
+
+.stat-number {
+    font-size: 28px;
+    font-weight: bold;
+    color: #ff3366;
+    display: block;
+}
+
+.section-card {
+    background: #1a1a1a;
+    border: 1px solid #ff3366;
+    margin: 10px 15px;
+    padding: 15px;
+    border-radius: 12px;
+    text-align: left;
+    width: calc(100% - 30px);
+}
+.universe-main-card{
+
+    margin:20px;
+    text-align:center;
+
+}
+
+.universe-main-card h2{
+
+    margin-bottom:10px;
+
+}
+
+.universe-card{
+
+    margin:15px 20px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    cursor:pointer;
+    transition:.25s;
+
+}
+
+.universe-card:hover{
+
+    transform:scale(1.02);
+
+}
+.text-input{
+
+    width:100%;
+    margin:20px 0;
+    padding:14px;
+
+    border:none;
+    border-radius:14px;
+
+    background:#202020;
+
+    color:white;
+
+    font-size:16px;
+
+}
+
+.places-screen{
+
+    padding-bottom:0;
+
+}
+
+.places-map{
+
+    position: relative;
+    flex: 1;
+    height: calc(100vh - 180px);
+    border-radius: 28px;
+    overflow: hidden;
+
+}
+
+.map-background{
+
+    position:absolute;
+
+    inset:0;
+
+    background:
+linear-gradient(rgba(255,255,255,.04) 1px, transparent 1px),
+linear-gradient(90deg, rgba(255,255,255,.04) 1px, transparent 1px),
+radial-gradient(circle at 30% 25%, rgba(255,0,70,.08), transparent 20%),
+radial-gradient(circle at 75% 65%, rgba(255,0,70,.05), transparent 25%),
+#0d0f16;
+
+background-size:
+70px 70px,
+70px 70px,
+100% 100%,
+100% 100%;
+
+}
+
+.map-pin{
+
+    position:absolute;
+
+    width:56px;
+
+    height:56px;
+
+    border-radius:18px;
+
+    background:rgba(200,16,46,.95);
+
+    backdrop-filter:blur(20px);
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    font-size:24px;
+
+    cursor:pointer;
+
+    transition:.25s;
+
+    box-shadow:
+    0 12px 30px rgba(0,0,0,.35),
+    0 0 18px rgba(255,0,70,.35);
+
+}
+
+.map-pin:hover{
+
+    transform:scale(1.08);
+
+}
+
+.pin1{
+
+    top:35%;
+
+    left:28%;
+
+}
+
+.pin2{
+
+    top:55%;
+
+    right:20%;
+
+}
+
+.pin3{
+
+    top:22%;
+
+    right:35%;
+
+}
+
+.floating-add{
+
+    position:absolute;
+
+    right:20px;
+
+    bottom:20px;
+
+    z-index:1000;
+
+}
+
+#placesMap{
+
+    width:100%;
+    height:100%;
+
+}

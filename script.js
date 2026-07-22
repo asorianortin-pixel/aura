@@ -8,6 +8,10 @@ const DEV_ACCESS_KEY = "aura_dev_access";
 let screen = "loading";
 let currentAudio = null;
 
+import { renderProfile } from "./firebase/profile.js";
+import { renderUniverse } from "./views/universeView.js";
+
+
 window.addEventListener("load", () => {
     if (localStorage.getItem(DEV_ACCESS_KEY) === "true") {
         screen = "welcome";
@@ -29,6 +33,9 @@ window.addEventListener("keydown", (event) => {
         }
     }
 });
+
+import { renderWishlist } from "./views/wishlistView.js";
+window.renderWishlist = renderWishlist;
 
 function stopAudio() {
     if (currentAudio) {
@@ -150,14 +157,12 @@ function renderWelcome() {
             </section>
 
             <div class="action-stack">
-                <button class="primary-button" id="agendaButton" type="button">Comenzar la aventura</button>
-                <button class="secondary-button" id="challengesButton" type="button">Abrir retos</button>
-            </div>
+    <button class="primary-button" id="agendaButton" type="button">Comenzar la aventura</button>
+</div>
         </main>
     `;
 
     document.getElementById("agendaButton").addEventListener("click", renderAgenda);
-    document.getElementById("challengesButton").addEventListener("click", renderChallenges);
 }
 
 function getVisibleActivities() {
@@ -294,6 +299,9 @@ function openActivity(index) {
         ? activity.rules.map((rule) => `<li>${rule}</li>`).join("")
         : "<li>Disfruta la actividad con calma y sigue el ritmo de la experiencia.</li>";
 
+    const isPhotoRequired = activity.requiresPhoto === true;
+    const hasPhoto = activity.photoProof != null;
+
     app.innerHTML = `
         <main class="activity app-screen screen-enter">
             <button class="back-button" id="activityBackButton" type="button">
@@ -308,7 +316,7 @@ function openActivity(index) {
                     <h2>Explicación</h2>
                     <span aria-hidden="true">›</span>
                 </div>
-                <p>${activity.explanation || "Esta parte de la experiencia está reservada. Cuando llegue el momento, aquí aparecerán las instrucciones."}</p>
+                <p>${activity.explanation || "Esta parte de la experiencia está reservada..."}</p>
             </section>
 
             <section class="card content-card">
@@ -319,6 +327,13 @@ function openActivity(index) {
                 <ul>${rules}</ul>
             </section>
 
+            ${isPhotoRequired ? `
+                <section class="card content-card">
+                    <h2>Prueba fotográfica</h2>
+                    <p>${hasPhoto ? "✅ Foto guardada" : "Necesitas tomar una foto para completar esta actividad"}</p>
+                    ${!hasPhoto ? `<button class="primary-button" id="takePhotoButton" type="button">📸 Tomar foto obligatoria</button>` : ""}
+                </section>` : ""}
+
             ${activity.contract ? `
                 <section class="card content-card">
                     <h2>Contrato</h2>
@@ -328,36 +343,24 @@ function openActivity(index) {
                     <button class="primary-button compact-button" id="viewContractButton" type="button">Ver contrato</button>
                 </section>` : ""}
 
-            ${activity.music ? `
-                <section class="card content-card">
-                    <h2>Música</h2>
-                    <button class="secondary-button media-button" id="playMusicButton" type="button">Reproducir música</button>
-                </section>` : ""}
-
-            ${activity.image ? `
-                <section class="card content-card">
-                    <h2>Imagen</h2>
-                    <button class="secondary-button media-button" id="viewImageButton" type="button">Ver imagen</button>
-                </section>` : ""}
-
-            <button class="primary-button continue-button" id="completeButton" type="button" ${activity.contract && !contractAccepted ? "disabled" : ""}>
-                ${activity.contract && !contractAccepted ? "Firma el contrato para continuar" : "Completar actividad"}
+            <button class="primary-button continue-button" id="completeButton" type="button" 
+                ${ (activity.contract && !contractAccepted) || (isPhotoRequired && !hasPhoto) ? "disabled" : "" }>
+                ${ (activity.contract && !contractAccepted) ? "Firma el contrato" : 
+                   (isPhotoRequired && !hasPhoto) ? "Toma la foto primero" : "Completar actividad"}
             </button>
         </main>
     `;
 
     document.getElementById("activityBackButton").addEventListener("click", renderAgenda);
 
+    if (isPhotoRequired && !hasPhoto) {
+        document.getElementById("takePhotoButton").addEventListener("click", () => {
+            openCamera(activity.id, activity.activityTitle || activity.agendaTitle);
+        });
+    }
+
     if (activity.contract) {
         document.getElementById("viewContractButton").addEventListener("click", () => renderContractScreen(activity));
-    }
-
-    if (activity.music) {
-        attachMusicPlayer(activity);
-    }
-
-    if (activity.image) {
-        document.getElementById("viewImageButton").addEventListener("click", () => renderImageScreen(activity));
     }
 
     document.getElementById("completeButton").addEventListener("click", () => {
@@ -460,6 +463,7 @@ function renderProgressScreen() {
 
     app.innerHTML = `
         <main class="progress-screen app-screen screen-enter">
+            <button class="back-button" onclick="renderMoreMenu()">← Volver</button>
             ${renderAppHeader("Tu progreso", `${progress}%`)}
 
             <section class="progress-orbit" aria-label="${progress}% completado">
@@ -475,12 +479,13 @@ function renderProgressScreen() {
                 <p><span>${pending}</span> partes por descubrir</p>
             </section>
 
-            ${renderBottomNav("progress")}
+            ${renderBottomNav("more")}
         </main>
     `;
 
     attachBottomNavEvents();
 }
+
 
 function renderFinalScreen() {
     stopAudio();
@@ -583,19 +588,23 @@ function renderBottomNav(active) {
                 <span aria-hidden="true">${targetSvg()}</span>
                 Retos
             </button>
-            <button class="${active === "progress" ? "active" : ""}" data-nav="progress" type="button">
-                <span aria-hidden="true">${pulseSvg()}</span>
-                Progreso
+            <button class="${active === "more" ? "active" : ""}" data-nav="more" type="button">
+                <span aria-hidden="true">⋯</span>
+                Más
             </button>
         </nav>`;
 }
-
 function attachBottomNavEvents() {
     document.querySelectorAll("[data-nav]").forEach((button) => {
         button.addEventListener("click", () => {
-            if (button.dataset.nav === "agenda") renderAgenda();
-            if (button.dataset.nav === "challenges") renderChallenges();
-            if (button.dataset.nav === "progress") renderProgressScreen();
+            const nav = button.dataset.nav;
+            if (nav === "agenda") {
+                renderAgenda();
+            } else if (nav === "challenges") {
+                renderChallenges();
+            } else if (nav === "more") {
+                renderMoreMenu();
+            }
         });
     });
 }
@@ -631,7 +640,41 @@ function pulseSvg() {
             <path d="M4 13h3l2-6 4 12 2-6h5"></path>
         </svg>`;
 }
-
+const galleryStyle = document.createElement('style');
+galleryStyle.textContent = `
+    .photo-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        gap: 15px;
+        padding: 15px;
+    }
+    .photo-card {
+        border-radius: 16px;
+        overflow: hidden;
+        background: #1a1a1a;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    }
+    .photo-card img {
+        width: 100%;
+        display: block;
+        height: 180px;
+        object-fit: cover;
+    }
+    .photo-info {
+        padding: 12px;
+    }
+    .photo-title {
+        margin: 0 0 4px 0;
+        font-size: 15px;
+        color: white;
+    }
+    .photo-date {
+        margin: 0;
+        font-size: 12px;
+        color: #999;
+    }
+`;
+document.head.appendChild(galleryStyle);
 if ("serviceWorker" in navigator) {
     window.addEventListener("load", () => {
         navigator.serviceWorker
@@ -640,3 +683,120 @@ if ("serviceWorker" in navigator) {
             .catch((error) => console.error("Error registrando Service Worker:", error));
     });
 }
+function renderGallery() {
+    let photos = JSON.parse(localStorage.getItem('photoGallery')) || [];
+
+    let html = `
+        <main class="gallery-screen app-screen screen-enter">
+            <button class="back-button" onclick="renderMoreMenu()">← Volver a Más</button>
+            <div class="app-header">
+                <p class="eyebrow">Pruebas fotográficas</p>
+                <h1>Mi Galería (${photos.length})</h1>
+            </div>`;
+
+    if (photos.length === 0) {
+        html += `
+            <div style="text-align:center; padding:80px 20px; color:#666;">
+                <p>📸 Aún no tienes fotos</p>
+                <p>Completa actividades que requieran prueba fotográfica</p>
+            </div>`;
+    } else {
+        html += `<div class="photo-grid">`;
+        photos.slice().reverse().forEach((photo, index) => {
+            html += `
+                <div class="photo-card">
+                    <img src="${photo.photo}" alt="${photo.title}">
+                    <div class="photo-info">
+                        <p class="photo-title">${photo.title}</p>
+                        <p class="photo-date">${new Date(photo.timestamp).toLocaleString()}</p>
+                        <button onclick="deletePhoto(${photos.length - 1 - index})" style="margin-top:8px; padding:5px 12px; background:#c00; color:white; border:none; border-radius:6px; font-size:12px;">🗑️ Borrar</button>
+                    </div>
+                </div>`;
+        });
+        html += `</div>`;
+    }
+
+    html += `</main>`;
+
+    app.innerHTML = html;
+}
+
+function deletePhoto(index) {
+    if (confirm("¿Seguro que quieres borrar esta foto?")) {
+        let photos = JSON.parse(localStorage.getItem('photoGallery')) || [];
+        photos.splice(index, 1);
+        localStorage.setItem('photoGallery', JSON.stringify(photos));
+        renderGallery(); // recargar galería
+    }
+}
+function renderMoreMenu() {
+    app.innerHTML = `
+        <main class="more-screen app-screen screen-enter">
+
+            <div class="app-header">
+                <h1>Más opciones</h1>
+            </div>
+
+            <div style="padding:20px; display:flex; flex-direction:column; gap:15px;">
+
+                <button class="secondary-button" id="profile-btn">
+                    👤 Mi perfil
+                </button>
+
+                <button class="secondary-button" id="universe-btn">
+                  🌌 Nuestro Universo
+                </button>
+
+                <button class="secondary-button" id="progress-btn">
+                    📊 Mi Progreso
+                </button>
+
+                <button class="secondary-button" id="gallery-btn">
+                    🖼️ Galería de Fotos
+                </button>
+
+                <button class="secondary-button" id="sex-btn">
+                    🔥 Contador de Polvos
+                </button>
+
+                <!-- NUEVO: Wishlist -->
+                <button class="secondary-button" id="wishlist-btn">
+                    🎁 Wishlist
+                </button>
+
+
+            </div>
+
+            ${renderBottomNav("more")}
+
+        </main>
+    `;
+
+    // Eventos
+    document.getElementById("profile-btn").addEventListener("click", () => renderProfile(app));
+    document.getElementById("progress-btn").addEventListener("click", renderProgressScreen);
+    document.getElementById("gallery-btn").addEventListener("click", renderGallery);
+    document.getElementById("sex-btn").addEventListener("click", renderSexCounter);
+    document.getElementById("universe-btn").addEventListener("click", () => renderUniverse(app));
+    
+    // Wishlist
+    document.getElementById("wishlist-btn").addEventListener("click", () => renderWishlist(app));
+
+    attachBottomNavEvents();
+}
+window.renderProfile = () => renderProfile(app);
+window.renderMoreMenu = renderMoreMenu;
+window.renderAgenda = renderAgenda;
+window.renderChallenges = renderChallenges;
+window.renderMoreMenu = renderMoreMenu;
+window.renderProgressScreen = renderProgressScreen;
+window.renderGallery = renderGallery;
+window.renderBottomNav = renderBottomNav;
+window.renderSexCounter = renderSexCounter;
+window.deletePhoto = deletePhoto;
+window.renderAppHeader = renderAppHeader;
+window.attachBottomNavEvents = attachBottomNavEvents;
+window.lockSvg = lockSvg;
+window.calendarSvg = calendarSvg;
+window.targetSvg = targetSvg;
+window.pulseSvg = pulseSvg;

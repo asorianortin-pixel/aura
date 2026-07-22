@@ -14,9 +14,16 @@
     <link rel="icon" type="image/png" href="assets/icons/icon-192.png">
 
     <link rel="stylesheet" href="style.css">
+    <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+/>
+    <script src="camera.js"></script>
+    <script src="views/sexCounterView.js"></script>
 </head>
 
 <body>
+<div id="auth-screen"></div>
 
 <div id="app">
 
@@ -25,7 +32,10 @@
 <script src="data/activities.js"></script>
 <script src="data/challenges.js"></script>
 <script src="views/challengesView.js"></script>
-<script src="script.js"></script>
+<script type="module" src="firebase/app.js"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script type="module" src="script.js"></script>
+<script type="module" src="firebase/profile.js"></script>
 
 </body>
 </html>
