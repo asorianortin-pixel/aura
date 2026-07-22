@@ -32,9 +32,6 @@ export function renderUniverse(app) {
                 ${universeMenuCard("", capsuleSvg(), "Capsula del tiempo")}
                 ${universeMenuCard("", constellationSvg(), "Constelacion")}
             </section>
-
-            ${renderUniverseBottomNav()}
-
             <div class="app-header">
                 <p class="eyebrow">AURA</p>
                 <h1>🌌 Nuestro Universo</h1>
@@ -821,7 +818,7 @@ function renderPlaces(app){
 
     app.innerHTML = `
 
-<main class="app-screen screen-enter places-screen">
+<main class="places-screen screen-enter">
 
     <button class="back-button" id="backPlaces">
         ←
@@ -842,6 +839,15 @@ function renderPlaces(app){
     <div class="places-map">
 
     <div id="placesMap"></div>
+
+    <div class="places-map-vignette" aria-hidden="true"></div>
+
+    <section
+        class="place-preview-sheet"
+        id="placePreview"
+        aria-live="polite"
+        hidden>
+    </section>
 
     <button
         class="floating-add"
@@ -880,12 +886,15 @@ places.forEach(place => {
     }
 
     const marker = L.marker(
-        [place.lat, place.lng]
+        [place.lat, place.lng],
+        {
+            icon: createPlaceMarkerIcon(place)
+        }
     ).addTo(map);
 
     marker.on("click", () => {
 
-        console.log(place);
+        showPlacePreview(app, place);
 
     });
 
@@ -937,6 +946,305 @@ map.on("click",(e)=>{
 
 });
 
+}
+
+function createPlaceMarkerIcon(place) {
+
+    const meta = getPlaceVisualMeta(place);
+
+    return L.divIcon({
+        className: "",
+        iconSize: [92, 102],
+        iconAnchor: [46, 82],
+        popupAnchor: [0, -74],
+        html: `
+            <button class="aura-place-marker aura-place-marker--${meta.state}" type="button" aria-label="${place.name}">
+                <span class="aura-place-marker-pin">
+                    <span class="aura-place-marker-icon">${meta.typeIcon}</span>
+                    <span class="aura-place-marker-state">${meta.stateIcon}</span>
+                </span>
+                <span class="aura-place-marker-dot"></span>
+                <span class="aura-place-marker-name">${place.name}</span>
+            </button>
+        `
+    });
+
+}
+
+function showPlacePreview(app, place) {
+
+    const preview = document.getElementById("placePreview");
+
+    if(!preview){
+        return;
+    }
+
+    const meta = getPlaceVisualMeta(place);
+    const dateLabel = place.date
+        ? new Date(place.date).toLocaleDateString("es-ES", {
+            day: "numeric",
+            month: "long",
+            year: "numeric"
+        })
+        : "Fecha por guardar";
+
+    preview.hidden = false;
+    preview.innerHTML = `
+        <div class="place-sheet-handle" aria-hidden="true"></div>
+
+        <div class="place-sheet-content">
+            <div class="place-photo place-photo--${meta.type}" aria-hidden="true">
+                <span>${meta.typeIcon}</span>
+            </div>
+
+            <div class="place-info">
+                <h2>${place.name}</h2>
+                <p class="place-location">${pinMiniSvg()} ${place.city}</p>
+
+                <div class="place-meta-row place-meta-row--${meta.state}">
+                    <span>${meta.stateIcon}</span>
+                    <strong>${meta.stateLabel}</strong>
+                </div>
+
+                <div class="place-meta-row">
+                    <span>${calendarMiniSvg()}</span>
+                    <span>${dateLabel}</span>
+                </div>
+
+                <div class="place-meta-row">
+                    <span>${meta.typeIcon}</span>
+                    <span>${meta.typeLabel}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="place-actions">
+            <button type="button" id="viewPlaceDetail">
+                <span>${bookSvg()}</span>
+                Ver lugar
+                <span class="place-action-chevron">&#8250;</span>
+            </button>
+            <button type="button" id="editPlaceFromMap">
+                <span>${editSvg()}</span>
+                Editar
+                <span class="place-action-chevron">&#8250;</span>
+            </button>
+            <button class="danger" type="button" id="deletePlaceFromMap">
+                <span>${trashSvg()}</span>
+                Eliminar
+                <span class="place-action-chevron">&#8250;</span>
+            </button>
+        </div>
+    `;
+
+    document
+        .getElementById("viewPlaceDetail")
+        .addEventListener("click", () => renderPlaceDetail(app, place.id));
+
+    document
+        .getElementById("editPlaceFromMap")
+        .addEventListener("click", () => renderEditPlace(app, place.id));
+
+    document
+        .getElementById("deletePlaceFromMap")
+        .addEventListener("click", () => deletePlaceAndReturnToMap(app, place.id));
+
+}
+
+function deletePlaceAndReturnToMap(app, id) {
+
+    if(!confirm("¿Eliminar este lugar?")){
+        return;
+    }
+
+    const places =
+        JSON.parse(localStorage.getItem("aura_places")) || [];
+
+    const updatedPlaces =
+        places.filter(place => place.id !== id);
+
+    localStorage.setItem(
+        "aura_places",
+        JSON.stringify(updatedPlaces)
+    );
+
+    renderPlaces(app);
+
+}
+
+function getPlaceVisualMeta(place) {
+
+    const state = normalizePlaceState(place.status);
+    const type = inferPlaceType(place);
+
+    const states = {
+        especial: {
+            state: "especial",
+            stateIcon: "♥",
+            stateLabel: "Especial"
+        },
+        favorito: {
+            state: "favorito",
+            stateIcon: "★",
+            stateLabel: "Favorito"
+        },
+        sueno: {
+            state: "sueno",
+            stateIcon: "✦",
+            stateLabel: "Sueño"
+        },
+        pendiente: {
+            state: "pendiente",
+            stateIcon: "◷",
+            stateLabel: "Pendiente"
+        }
+    };
+
+    const types = {
+        restaurante: {
+            type: "restaurante",
+            typeIcon: restaurantSvg(),
+            typeLabel: "Restaurante"
+        },
+        hotel: {
+            type: "hotel",
+            typeIcon: hotelSvg(),
+            typeLabel: "Hotel"
+        },
+        playa: {
+            type: "playa",
+            typeIcon: beachSvg(),
+            typeLabel: "Playa"
+        },
+        viaje: {
+            type: "viaje",
+            typeIcon: planeSvg(),
+            typeLabel: "Viaje"
+        },
+        mirador: {
+            type: "mirador",
+            typeIcon: mountainSvg(),
+            typeLabel: "Mirador"
+        },
+        parque: {
+            type: "parque",
+            typeIcon: parkSvg(),
+            typeLabel: "Parque"
+        },
+        lugar: {
+            type: "lugar",
+            typeIcon: pinMiniSvg(),
+            typeLabel: "Lugar"
+        }
+    };
+
+    return {
+        ...states[state],
+        ...types[type]
+    };
+
+}
+
+function normalizePlaceState(status) {
+
+    if(status === "favorito"){
+        return "favorito";
+    }
+
+    if(status === "pendiente"){
+        return "pendiente";
+    }
+
+    if(status === "sueno"){
+        return "sueno";
+    }
+
+    return "especial";
+
+}
+
+function inferPlaceType(place) {
+
+    const text = `${place.name || ""} ${place.city || ""}`.toLowerCase();
+
+    if(/restaurante|cena|bar|caf[eé]|comida|brunch/.test(text)){
+        return "restaurante";
+    }
+
+    if(/hotel|suite|hostal|apartamento|spa/.test(text)){
+        return "hotel";
+    }
+
+    if(/playa|cala|mar|mallorca|ibiza|costa/.test(text)){
+        return "playa";
+    }
+
+    if(/viaje|airport|aeropuerto|par[ií]s|venecia|roma|londres|t[uú]nez/.test(text)){
+        return "viaje";
+    }
+
+    if(/mirador|vistas|tibidabo|monta[ñn]a|atardecer/.test(text)){
+        return "mirador";
+    }
+
+    if(/parque|feria|atracci[oó]n|jard[ií]n/.test(text)){
+        return "parque";
+    }
+
+    return "lugar";
+
+}
+
+function pinMiniSvg() {
+    return `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22s7-6.1 7-13A7 7 0 0 0 5 9c0 6.9 7 13 7 13Z"></path><circle cx="12" cy="9" r="2.4"></circle></svg>`;
+}
+
+function calendarMiniSvg() {
+    return `<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5" width="16" height="15" rx="3"></rect><path d="M8 3v4M16 3v4M4 10h16"></path></svg>`;
+}
+
+function editSvg() {
+    return `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m4 20 4.5-1 10-10a2.1 2.1 0 0 0-3-3l-10 10L4 20Z"></path><path d="m14 7 3 3"></path></svg>`;
+}
+
+function trashSvg() {
+    return `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16"></path><path d="M9 7V4h6v3"></path><path d="M6 7l1 14h10l1-14"></path><path d="M10 11v6M14 11v6"></path></svg>`;
+}
+
+function restaurantSvg() {
+    return `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3v18"></path><path d="M4 3v6a3 3 0 0 0 6 0V3"></path><path d="M16 3c2.2 1.3 3.5 3.7 3.5 6.5V21"></path></svg>`;
+}
+
+function hotelSvg() {
+    return `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V5"></path><path d="M4 13h16v6"></path><path d="M8 13V9h5a3 3 0 0 1 3 3v1"></path><path d="M4 19h18"></path></svg>`;
+}
+
+function beachSvg() {
+    return `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 16c2-1.5 4-1.5 6 0s4 1.5 6 0 3-1.4 4-.8"></path><path d="M7 12a6 6 0 0 1 10 0"></path><path d="M12 12v7"></path><path d="M12 12l4-4M12 12 8 8"></path></svg>`;
+}
+
+function planeSvg() {
+    return `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l18-7-7 18-3-8-8-3Z"></path><path d="M11 14 21 4"></path></svg>`;
+}
+
+function mountainSvg() {
+    return `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 19 7-12 4 7 2-3 5 8H3Z"></path><circle cx="17" cy="6" r="1.8"></circle></svg>`;
+}
+
+function parkSvg() {
+    return `<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="6"></circle><path d="M12 6v12M6 12h12M8 8l8 8M16 8l-8 8"></path></svg>`;
+}
+
+function arrowLeftSvg() {
+    return `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5 8 12l7 7"></path></svg>`;
+}
+
+function foldedMapSvg() {
+    return `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 6 6-3 6 3 6-3v15l-6 3-6-3-6 3V6Z"></path><path d="M9 3v15M15 6v15"></path></svg>`;
+}
+
+function plusSvg() {
+    return `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>`;
 }
 
 function renderPlaceDetail(app,id){
