@@ -123,6 +123,20 @@ document
 
 }
 
+function getDaysTogether() {
+
+    const date = localStorage.getItem("aura_relationship_date");
+
+    if (!date) return 0;
+
+    const start = new Date(date);
+    const today = new Date();
+
+    const diff = today - start;
+
+    return Math.floor(diff / (1000 * 60 * 60 * 24));
+
+}
 
 updateLoveCounter(startDate);
 

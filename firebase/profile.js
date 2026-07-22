@@ -6,9 +6,31 @@ import {
     updateDoc
 } from "./firestore.js";
 
+import {
+    collection,
+    query,
+    where,
+    getDocs
+} from "./firestore.js";
+
 export async function renderProfile(app) {
     const snap = await getDoc(doc(db, "users", auth.currentUser.uid));
     const user = snap.data() || {};
+    const relationshipDate = localStorage.getItem("aura_relationship_date");
+
+    let daysTogether = 0;
+    const completedActivities = user.completedActivities || 0;
+    const points = user.points || 0;
+
+
+if (relationshipDate) {
+    const start = new Date(relationshipDate);
+    const today = new Date();
+
+    daysTogether = Math.floor(
+        (today - start) / (1000 * 60 * 60 * 24)
+    );
+}
 
     app.innerHTML = `
         <div class="page profile-page profile-screen screen-enter">
@@ -34,9 +56,7 @@ export async function renderProfile(app) {
                         <img id="profile-photo"
                              src="${user.photoURL || '../assets/images/foto1.jpg'}"
                              alt="Foto de perfil">
-                        <button id="edit-photo-btn" class="edit-photo-btn" aria-label="Editar foto">
-                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 013 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>
-                        </button>
+                        
                     </div>
                 </div>
 
@@ -64,23 +84,23 @@ export async function renderProfile(app) {
                     <div class="stat-icon">
                         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>
                     </div>
-                    <span class="stat-number">12</span>
-                    <span class="stat-label">Retos completados</span>
+                    <span class="stat-number">${completedActivities}</span>
+                    <span class="stat-label">Actividades completadas</span>
                 </div>
                 <div class="stat-divider" aria-hidden="true"></div>
                 <div class="stat-item">
                     <div class="stat-icon">
                         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22c1.5-2.5 4-5.5 4-9a4 4 0 00-8 0c0 3.5 2.5 6.5 4 9z"/><path d="M12 13c.8-1.2 1.5-2.4 1.5-3.5a1.5 1.5 0 00-3 0c0 1.1.7 2.3 1.5 3.5z"/></svg>
                     </div>
-                    <span class="stat-number">7</span>
-                    <span class="stat-label">Días seguidos</span>
+                    <span class="stat-number">${daysTogether}</span>
+                    <span class="stat-label">Días juntos</span>
                 </div>
                 <div class="stat-divider" aria-hidden="true"></div>
                 <div class="stat-item">
                     <div class="stat-icon">
                         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg>
                     </div>
-                    <span class="stat-number">850</span>
+                    <span class="stat-number">${points}</span>
                     <span class="stat-label">Puntos totales</span>
                 </div>
             </section>
@@ -91,20 +111,8 @@ export async function renderProfile(app) {
                         <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
                     </span>
                     <span class="section-content">
-                        <span class="section-title">1. Información personal</span>
+                        <span class="section-title"> Información personal</span>
                         <span class="section-desc">Tus datos, tu historia.</span>
-                    </span>
-                    <span class="section-chevron" aria-hidden="true">
-                        <svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
-                    </span>
-                </button>
-                <button class="section-card" id="relationship-btn">
-                    <span class="section-icon">
-                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7-4.5-9.5-9A5.5 5.5 0 0112 6a5.5 5.5 0 019.5 6c-2.5 4.5-9.5 9-9.5 9z"/></svg>
-                    </span>
-                    <span class="section-content">
-                        <span class="section-title">2. Relación</span>
-                        <span class="section-desc">Nuestro vínculo, nuestro espacio.</span>
                     </span>
                     <span class="section-chevron" aria-hidden="true">
                         <svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
@@ -115,20 +123,8 @@ export async function renderProfile(app) {
                         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg>
                     </span>
                     <span class="section-content">
-                        <span class="section-title">3. Gustos</span>
+                        <span class="section-title"> Gustos</span>
                         <span class="section-desc">Lo que nos gusta y nos representa.</span>
-                    </span>
-                    <span class="section-chevron" aria-hidden="true">
-                        <svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
-                    </span>
-                </button>
-                <button class="section-card" id="gifts-btn">
-                    <span class="section-icon">
-                        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13M7.5 8a3.5 3.5 0 017 0M12 8a3.5 3.5 0 017 0M12 8a3.5 3.5 0 00-7 0"/><rect x="5" y="12" width="14" height="9" rx="2"/></svg>
-                    </span>
-                    <span class="section-content">
-                        <span class="section-title">4. Regalos</span>
-                        <span class="section-desc">Ideas y detalles para sorprendernos.</span>
                     </span>
                     <span class="section-chevron" aria-hidden="true">
                         <svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
@@ -139,7 +135,7 @@ export async function renderProfile(app) {
                         <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
                     </span>
                     <span class="section-content">
-                        <span class="section-title">5. Otros</span>
+                        <span class="section-title"> Otros</span>
                         <span class="section-desc">Recuerdos, metas y más.</span>
                     </span>
                     <span class="section-chevron" aria-hidden="true">
@@ -154,14 +150,164 @@ export async function renderProfile(app) {
     document.getElementById("back-more").addEventListener("click", () => {
     window.renderMoreMenu();
 });
-    document.getElementById("edit-photo-btn").addEventListener("click", editProfilePhoto);
 
     document.getElementById("personal-btn").addEventListener("click", () => renderPersonalInfo(app));
-    document.getElementById("relationship-btn").addEventListener("click", renderRelationship);
     document.getElementById("favorites-btn").addEventListener("click", renderFavorites);
-    document.getElementById("gifts-btn").addEventListener("click", renderGifts);
     document.getElementById("other-btn").addEventListener("click", renderOther);
+    document.getElementById("settings-btn").addEventListener("click", () => {
+    renderEditProfile(app);
+});
+document
+    .getElementById("settings-btn")
+    .addEventListener("click", () => {
+
+        renderEditProfile(app);
+
+    });
 }
+
+async function renderEditProfile(app) {
+
+    const snap = await getDoc(
+        doc(db, "users", auth.currentUser.uid)
+    );
+
+    const user = snap.data() || {};
+
+    app.innerHTML = `
+        <div class="page personal-info-screen screen-enter">
+
+            <nav class="profile-nav">
+                <button id="back-profile" class="profile-nav-btn">
+                    ←
+                </button>
+
+                <button id="save-edit-profile" class="profile-nav-btn profile-nav-btn--accent">
+                    ✓
+                </button>
+            </nav>
+
+            <header class="personal-header">
+                <h1 class="personal-title">
+                    Editar perfil
+                </h1>
+                <p class="personal-subtitle">
+                    Personaliza cómo te ven en AURA.
+                </p>
+            </header>
+
+            <div class="profile-form">
+
+                <div class="profile-photo-editor">
+
+                    <img
+                        id="profile-photo-preview"
+                        src="${user.photoURL || "../assets/images/foto1.jpg"}"
+                    >
+
+                    <button id="change-photo-btn">
+                        Cambiar foto
+                    </button>
+
+                </div>
+
+                <div class="field-card">
+                    <div class="field-body">
+                        <label>Nombre</label>
+                        <input
+                            id="edit-name"
+                            type="text"
+                            value="${user.name || ""}"
+                        >
+                    </div>
+                </div>
+
+                <div class="field-card">
+                    <div class="field-body">
+                        <label>Nombre de usuario</label>
+                        <input
+                            id="edit-username"
+                            type="text"
+                            value="${user.username || ""}"
+                        >
+                    </div>
+                </div>
+
+                <div class="field-card field-card--bio">
+                    <div class="field-body field-body--full">
+                        <label>Frase</label>
+
+                        <textarea
+                            id="edit-bio"
+                            rows="4"
+                        >${user.bio || ""}</textarea>
+
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    `;
+
+    document
+    .getElementById("back-profile")
+    .addEventListener("click", () => renderProfile(app));
+
+    document
+    .getElementById("change-photo-btn")
+    .addEventListener("click", editProfilePhoto);
+document
+    .getElementById("save-edit-profile")
+    .addEventListener("click", async () => {
+
+        const newUsername = document
+    .getElementById("edit-username")
+    .value
+    .trim()
+    .toLowerCase();
+    const q = query(
+    collection(db, "users"),
+    where("username", "==", newUsername)
+);
+
+const result = await getDocs(q);
+
+let usernameTaken = false;
+
+result.forEach(docSnap => {
+    if (docSnap.id !== auth.currentUser.uid) {
+        usernameTaken = true;
+    }
+});
+
+if (usernameTaken) {
+    alert("❌ Ese nombre de usuario ya está en uso.");
+    return;
+}
+
+        await updateDoc(
+            doc(db, "users", auth.currentUser.uid),
+            {
+
+                name: document.getElementById("edit-name").value,
+
+                username: newUsername,
+
+                bio: document.getElementById("edit-bio").value
+
+            }
+        );
+
+        alert("❤️ Perfil actualizado");
+
+        renderProfile(app);
+
+    });
+
+
+}
+
 
 // ==================== FOTO DE PERFIL ====================
 function editProfilePhoto() {
@@ -281,26 +427,6 @@ async function renderPersonalInfo(app) {
 
                     <div class="field-card">
                         <span class="field-icon" aria-hidden="true">
-                            <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
-                        </span>
-                        <div class="field-body">
-                            <label for="profile-name">Nombre</label>
-                            <input id="profile-name" type="text" value="${user?.name || ""}" placeholder="Tu nombre" autocomplete="name">
-                        </div>
-                    </div>
-
-                    <div class="field-card">
-                        <span class="field-icon" aria-hidden="true">
-                            <svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
-                        </span>
-                        <div class="field-body">
-                            <label for="profile-username">Username</label>
-                            <input id="profile-username" type="text" value="${user?.username || ""}" placeholder="@username" autocapitalize="none" autocomplete="username">
-                        </div>
-                    </div>
-
-                    <div class="field-card">
-                        <span class="field-icon" aria-hidden="true">
                             <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="3"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
                         </span>
                         <div class="field-body">
@@ -329,21 +455,38 @@ async function renderPersonalInfo(app) {
                     </div>
                 </section>
 
-                <section class="personal-block">
-                    <h2 class="personal-block-title">
-                        <span class="personal-block-icon" aria-hidden="true">
-                            <svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 013 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>
-                        </span>
-                        Sobre ti
-                    </h2>
+                
 
-                    <div class="field-card field-card--bio">
-                        <div class="field-body field-body--full">
-                            <label for="profile-bio">Biografía</label>
-                            <textarea id="profile-bio" rows="5" placeholder="Cuéntanos más sobre ti...">${user?.bio || ""}</textarea>
-                        </div>
-                    </div>
-                </section>
+                <section class="personal-block">
+    <h2 class="personal-block-title">
+        <span class="personal-block-icon">🎁</span>
+        Información para regalos
+    </h2>
+
+    <div class="field-card">
+        <div class="field-body">
+            <label for="profile-shirt-size">Talla de camiseta</label>
+            <input
+                id="profile-shirt-size"
+                type="text"
+                value="${user?.shirtSize || ""}"
+                placeholder="Ej: S, M, L..."
+            >
+        </div>
+    </div>
+
+    <div class="field-card">
+        <div class="field-body">
+            <label for="profile-shoe-size">Talla de zapatos</label>
+            <input
+                id="profile-shoe-size"
+                type="text"
+                value="${user?.shoeSize || ""}"
+                placeholder="Ej: 39"
+            >
+        </div>
+    </div>
+</section>
 
                 <button id="save-profile" class="personal-save-btn" type="button">
                     <span class="personal-save-icon" aria-hidden="true">
@@ -391,32 +534,12 @@ async function renderPersonalInfo(app) {
                 {
 
 
-
-
-                    name: document.getElementById("profile-name").value,
-
-
-
-
-                    username: document.getElementById("profile-username").value,
-
-
-
-
                     birthday: document.getElementById("profile-birthday").value,
-
-
-
 
                     gender: document.getElementById("profile-gender").value,
 
-
-
-
-                    bio: document.getElementById("profile-bio").value
-
-
-
+                    shirtSize: document.getElementById("profile-shirt-size").value,
+                    shoeSize: document.getElementById("profile-shoe-size").value
 
                 }
 
@@ -444,69 +567,6 @@ async function renderPersonalInfo(app) {
 
 
 }
-
-function renderRelationship() {
-    app.innerHTML = `
-        <div class="page">
-            <div class="top-bar">
-                <button id="back-profile">←</button>
-                <h2>❤️ Relación</h2>
-            </div>
-
-            <div class="profile-form">
-                <label>Tipo de relación</label>
-                <select id="relationship-type">
-                    <option value="">Selecciona...</option>
-                    <option value="Novios">Novios</option>
-                    <option value="Prometidos">Prometidos</option>
-                    <option value="Casados">Casados</option>
-                    <option value="Pareja">Pareja</option>
-                    <option value="Otra">Otra</option>
-                </select>
-
-                <label>Fecha de inicio</label>
-                <input type="date" id="relationship-start">
-
-                <label>Aniversario</label>
-                <input type="date" id="anniversary">
-
-                <label>¿Vivimos juntos?</label>
-                <select id="live-together">
-                    <option value="">Selecciona...</option>
-                    <option value="Sí">Sí</option>
-                    <option value="No">No</option>
-                </select>
-
-                <label>Idioma del amor</label>
-                <select id="love-language">
-                    <option value="">Selecciona...</option>
-                    <option value="Palabras de afirmación">Palabras de afirmación</option>
-                    <option value="Tiempo de calidad">Tiempo de calidad</option>
-                    <option value="Actos de servicio">Actos de servicio</option>
-                    <option value="Regalos">Regalos</option>
-                    <option value="Contacto físico">Contacto físico</option>
-                </select>
-
-                <button id="save-relationship">Guardar cambios</button>
-            </div>
-        </div>
-    `;
-
-    document.getElementById("back-profile").addEventListener("click", () => renderProfile(app));
-
-    document.getElementById("save-relationship").addEventListener("click", async () => {
-        await updateDoc(doc(db, "users", auth.currentUser.uid), {
-            relationshipType: document.getElementById("relationship-type").value,
-            relationshipStart: document.getElementById("relationship-start").value,
-            anniversary: document.getElementById("anniversary").value,
-            liveTogether: document.getElementById("live-together").value,
-            loveLanguage: document.getElementById("love-language").value
-        });
-        alert("❤️ Relación guardada");
-        renderProfile(app);
-    });
-}
-
 // ==================== GUSTOS ====================
 function renderFavorites() {
     app.innerHTML = `
@@ -559,53 +619,6 @@ function renderFavorites() {
     });
 }
 
-// ==================== REGALOS ====================
-function renderGifts() {
-    app.innerHTML = `
-        <div class="page">
-            <div class="top-bar">
-                <button id="back-profile">←</button>
-                <h2>🎁 Regalos</h2>
-            </div>
-            <div class="profile-form">
-                <label>Talla de ropa</label>
-                <input type="text" id="clothing-size">
-
-                <label>Talla de zapatos</label>
-                <input type="text" id="shoe-size">
-
-                <label>Perfume favorito</label>
-                <input type="text" id="favorite-perfume">
-
-                <label>Flores favoritas</label>
-                <input type="text" id="favorite-flowers">
-
-                <label>Chocolate favorito</label>
-                <input type="text" id="favorite-chocolate">
-
-                <label>Lista de deseos</label>
-                <textarea id="wishlist" rows="4" placeholder="Cosas que te gustaría recibir..."></textarea>
-
-                <button id="save-gifts">Guardar Regalos</button>
-            </div>
-        </div>
-    `;
-
-    document.getElementById("back-profile").addEventListener("click", () => renderProfile(app));
-
-    document.getElementById("save-gifts").addEventListener("click", async () => {
-        await updateDoc(doc(db, "users", auth.currentUser.uid), {
-            clothingSize: document.getElementById("clothing-size").value,
-            shoeSize: document.getElementById("shoe-size").value,
-            favoritePerfume: document.getElementById("favorite-perfume").value,
-            favoriteFlowers: document.getElementById("favorite-flowers").value,
-            favoriteChocolate: document.getElementById("favorite-chocolate").value,
-            wishlist: document.getElementById("wishlist").value
-        });
-        alert("🎁 Información de regalos guardada");
-        renderProfile(app);
-    });
-}
 
 // ==================== OTROS ====================
 function renderOther() {
