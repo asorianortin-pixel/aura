@@ -1,4 +1,5 @@
 import { auth } from "./auth.js";
+import { signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
     db,
     doc,
@@ -130,6 +131,27 @@ if (relationshipDate) {
                         <svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
                     </span>
                 </button>
+                <button class="section-card" id="security-btn">
+                    <span class="section-icon">
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M12 2l7 3v6c0 5-3.5 9-7 11-3.5-2-7-6-7-11V5z"/>
+                            <path d="M9.5 11.5l2 2 3.5-4"/>
+                        </svg>
+                    </span>
+
+                    <span class="section-content">
+                        <span class="section-title"> Seguridad</span>
+                        <span class="section-desc">
+                            PIN, privacidad y acceso.
+                        </span>
+                    </span>
+
+                    <span class="section-chevron">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M9 18l6-6-6-6"/>
+                        </svg>
+                    </span>
+                </button>
                 <button class="section-card" id="other-btn">
                     <span class="section-icon">
                         <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
@@ -153,11 +175,11 @@ if (relationshipDate) {
 
     document.getElementById("personal-btn").addEventListener("click", () => renderPersonalInfo(app));
     document.getElementById("favorites-btn").addEventListener("click", renderFavorites);
+    document
+    .getElementById("security-btn")
+    .addEventListener("click", () => renderSecuritySettings(app));
     document.getElementById("other-btn").addEventListener("click", renderOther);
-    document.getElementById("settings-btn").addEventListener("click", () => {
-    renderEditProfile(app);
-});
-document
+    document
     .getElementById("settings-btn")
     .addEventListener("click", () => {
 
@@ -234,16 +256,24 @@ async function renderEditProfile(app) {
                 </div>
 
                 <div class="field-card field-card--bio">
-                    <div class="field-body field-body--full">
-                        <label>Frase</label>
+    <div class="field-body field-body--full">
+        <label>Frase</label>
 
-                        <textarea
-                            id="edit-bio"
-                            rows="4"
-                        >${user.bio || ""}</textarea>
+        <textarea
+            id="edit-bio"
+            rows="4"
+        >${user.bio || ""}</textarea>
 
-                    </div>
-                </div>
+    </div>
+</div>
+
+<button
+    id="logout-btn"
+    type="button"
+    class="logout-btn"
+>
+    Cerrar sesión
+</button>
 
             </div>
 
@@ -257,6 +287,31 @@ async function renderEditProfile(app) {
     document
     .getElementById("change-photo-btn")
     .addEventListener("click", editProfilePhoto);
+    document
+    .getElementById("logout-btn")
+    .addEventListener("click", async () => {
+
+        const confirmLogout = confirm(
+            "¿Seguro que quieres cerrar sesión?"
+        );
+
+        if (!confirmLogout) {
+            return;
+        }
+
+        try {
+
+            await signOut(auth);
+
+        } catch (error) {
+
+            console.error("Error al cerrar sesión:", error);
+
+            alert("No se ha podido cerrar la sesión.");
+
+        }
+
+    });
 document
     .getElementById("save-edit-profile")
     .addEventListener("click", async () => {
@@ -329,6 +384,13 @@ function editProfilePhoto() {
             <button id="btn-gallery" style="display:block; width:100%; padding:16px; margin:12px 0; background:#333; color:white; border:none; border-radius:12px; font-size:17px;">
                 🖼️ Elegir desde galería
             </button>
+
+            <button
+    id="btn-delete"
+    style="display:block; width:100%; padding:16px; margin:12px 0; background:#8b1e1e; color:white; border:none; border-radius:12px; font-size:17px;"
+>
+    🗑️ Restablecer foto
+</button>
             
             <button id="btn-cancel" style="display:block; width:100%; padding:14px; margin:12px 0; background:transparent; color:#aaa; border:1px solid #444; border-radius:12px;">
                 Cancelar
@@ -352,6 +414,23 @@ function editProfilePhoto() {
         modal.remove();
         chooseFromGallery();
     };
+
+    document.getElementById("btn-delete").onclick = async () => {
+
+    await updateDoc(
+        doc(db, "users", auth.currentUser.uid),
+        {
+            photoURL: ""
+        }
+    );
+
+    modal.remove();
+
+    alert("🗑️ Foto restablecida");
+
+    renderProfile(document.getElementById("app"));
+
+};
 
     document.getElementById('btn-cancel').onclick = () => modal.remove();
 }

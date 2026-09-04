@@ -9,12 +9,14 @@ import {
     doc,
     updateDoc
 } from "../firebase/firestore.js";
+import { renderSecurityView } from "./securityView.js";
 
 let currentTab = "alba";
 let wishlistData = [];
 let editingWishId = null;
 
-export async function renderWishlist(app) {
+export async function renderWishlist(app, initialTab = "alba") {
+    currentTab = initialTab;
     app.innerHTML = `
         <div class="page wishlist-page">
             <div class="top-bar">
@@ -26,7 +28,10 @@ export async function renderWishlist(app) {
             <div class="wishlist-tabs">
                 <button id="tab-alba"> Alba</button>
 
-<button id="tab-alejandro"> Alejandro</button>
+                <button id="tab-alejandro"> Alejandro</button>
+
+                <button id="tab-intimidad">🌙 Intimidad</button>
+
             </div>
 
             <div id="wishlist-content" class="wishlist-content"></div>
@@ -39,6 +44,15 @@ export async function renderWishlist(app) {
 
     document.getElementById("tab-alba").addEventListener("click", () => { currentTab = "alba"; loadWishlist(); });
     document.getElementById("tab-alejandro").addEventListener("click", () => { currentTab = "alejandro"; loadWishlist(); });
+   document.getElementById("tab-intimidad").addEventListener("click", () => {
+
+    renderSecurityView(app, () => {
+
+        renderWishlist(app, "intimidad");
+
+    });
+
+});
 
     loadWishlist();
 }
@@ -89,6 +103,40 @@ z-index:2;">
 ` : ""}
                         <div style="padding:15px;">
                             <h4 style="margin:0 0 8px 0;">${wish.name}</h4>
+                            ${currentTab === "intimidad" ? `
+                            <p style="
+                            margin:0 0 8px 0;
+                            font-size:13px;
+                            color:#ff9ab8;
+                            font-weight:600;">
+                            ${wish.category}
+                            </p>
+                            ` : ""}
+                            ${currentTab === "intimidad" ? `
+                            <p style="
+                            margin:0;
+                            font-size:13px;
+                            color:#ffd166;">
+                            ${"❤️".repeat(Number(wish.priority || 1))}
+                            </p>
+                            ` : ""}
+                            ${currentTab === "intimidad" ? `
+                            <p style="
+                            margin:4px 0;
+                            font-size:13px;
+                            color:#8fd3ff;
+                            ">
+
+                            ${
+                            wish.status === "idea" ? "💭 Idea" :
+                            wish.status === "comprar" ? "🛒 Por comprar" :
+                            wish.status === "comprado" ? "📦 Comprado" :
+                            wish.status === "probado" ? "✅ Probado" :
+                            ""
+                            }
+
+                            </p>
+                            ` : ""}
                             ${wish.description ? `<p style="margin:5px 0; color:#ccc;">${wish.description}</p>` : ''}
                             ${wish.price ? `<p style="margin:8px 0 0 0; font-weight:bold; color:${wish.purchased ? "#34c759" : "#ff3366"};">${wish.price} €</p>` : ''}
                             ${wish.link ? `<a href="${wish.link}" target="_blank" style="color:#ff6699; font-size:14px;">Abrir producto →</a>` : ''}
@@ -265,6 +313,10 @@ document.addEventListener("click", (e) => {
 }
 
 function showAddWishModal(wish = null, wishId = null) {
+
+    const isIntimidad = currentTab === "intimidad";
+
+
     const modal = document.createElement('div');
     modal.style.cssText = `position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.95);z-index:10000;display:flex;align-items:center;justify-content:center;`;
 
@@ -291,7 +343,59 @@ id="wish-price"
 value="${wish?.price || ""}"
 placeholder="Precio aproximado (€)"
 style="width:100%;padding:12px;margin:8px 0;background:#222;border:none;border-radius:8px;color:white;">
-            
+    
+
+${isIntimidad ? `
+
+<select
+id="wish-category"
+style="width:100%;padding:12px;margin:8px 0;background:#222;border:none;border-radius:8px;color:white;">
+
+<option value="">Categoría</option>
+
+<option value="Lencería">👗 Lencería</option>
+
+<option value="Juguetes">🧸 Juguetes</option>
+
+<option value="Accesorios">🛍️ Accesorios</option>
+
+<option value="Juegos">🎲 Juegos</option>
+
+<option value="Ambiente">🕯️ Ambiente</option>
+
+<option value="Otros">📦 Otros</option>
+
+</select>
+
+<select
+id="wish-priority"
+style="width:100%;padding:12px;margin:8px 0;background:#222;border:none;border-radius:8px;color:white;">
+
+<option value="1">❤️ Baja</option>
+
+<option value="2">❤️❤️ Media</option>
+
+<option value="3">❤️❤️❤️ Alta</option>
+
+</select>
+
+<select
+id="wish-status"
+style="width:100%;padding:12px;margin:8px 0;background:#222;border:none;border-radius:8px;color:white;">
+
+<option value="idea">💭 Idea</option>
+
+<option value="comprar">🛒 Por comprar</option>
+
+<option value="comprado">📦 Comprado</option>
+
+<option value="probado">✅ Probado</option>
+
+</select>
+
+` : ""}
+
+
             <input
 type="url"
 id="wish-link"
@@ -383,6 +487,9 @@ document.getElementById("save-wish").addEventListener("click", async () => {
     price: document.getElementById("wish-price").value.trim(),
     link: document.getElementById("wish-link").value.trim(),
     image: document.getElementById("wish-image").value.trim(),
+    category: isIntimidad ? document.getElementById("wish-category").value : "",
+    priority: isIntimidad ? document.getElementById("wish-priority").value : "",
+    status: isIntimidad ? document.getElementById("wish-status").value : "",
     owner: currentTab,
     purchased: wishId ? (wishlistData.find(w => w.id === wishId)?.purchased ?? false) : false,
     createdBy: auth.currentUser?.uid || null,
